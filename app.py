@@ -54,5 +54,44 @@ def add_reading():
     conn.close()
     return jsonify({'message': 'Reading added successfully'}), 201
 
+@app.route('/api/latest_reading', methods=['GET'])
+def get_latest_reading():
+    conn = sqlite3.connect(DB_NAME)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute('SELECT * FROM plant_readings ORDER BY timestamp DESC, id DESC LIMIT 1')
+    row = c.fetchone()
+    conn.close()
+    if row:
+        result = {key: row[key] for key in row.keys()}
+        return jsonify(result)
+    else:
+        return jsonify({'error': 'No readings found'}), 404
+
+@app.route('/api/readings', methods=['GET'])
+def get_readings():
+    start = request.args.get('start')
+    end = request.args.get('end')
+    conn = sqlite3.connect(DB_NAME)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    query = 'SELECT * FROM plant_readings'
+    params = []
+    if start and end:
+        query += ' WHERE timestamp BETWEEN ? AND ?'
+        params.extend([start, end])
+    elif start:
+        query += ' WHERE timestamp >= ?'
+        params.append(start)
+    elif end:
+        query += ' WHERE timestamp <= ?'
+        params.append(end)
+    query += ' ORDER BY timestamp DESC, id DESC'
+    c.execute(query, params)
+    rows = c.fetchall()
+    conn.close()
+    result = [{key: row[key] for key in row.keys()} for row in rows]
+    return jsonify(result)
+
 if __name__ == '__main__':
     app.run(debug=True)
