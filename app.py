@@ -1,6 +1,7 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 import sqlite3
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -33,6 +34,25 @@ def setup():
 @app.route('/')
 def hello():
     return 'Hello, World!'
+
+@app.route('/api/add_reading', methods=['POST'])
+def add_reading():
+    data = request.get_json()
+    required_fields = ['moisture', 'temp', 'light']
+    if not all(field in data for field in required_fields):
+        return jsonify({'error': 'Missing required fields'}), 400
+    timestamp = data.get('timestamp', datetime.utcnow().isoformat())
+    notes = data.get('notes', '')
+    plant_id = data.get('plant_id')
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute('''
+        INSERT INTO plant_readings (timestamp, moisture, temp, light, notes, plant_id)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', (timestamp, data['moisture'], data['temp'], data['light'], notes, plant_id))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Reading added successfully'}), 201
 
 if __name__ == '__main__':
     app.run(debug=True)
