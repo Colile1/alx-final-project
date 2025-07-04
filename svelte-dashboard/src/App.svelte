@@ -2,6 +2,7 @@
 	// No props needed for main dashboard layout
 	import CurrentStatus from './CurrentStatus.svelte';
 	import InputForm from './InputForm.svelte';
+	import ChartComponent from './ChartComponent.svelte';
 </script>
 
 <main class="dashboard-container">
@@ -16,7 +17,7 @@
 		</div>
 		<div class="charts-section">
 			<h2>Historical Data</h2>
-			<!-- Chart.js integration will go here -->
+			<ChartComponent />
 		</div>
 		<div class="input-section">
 			<h2>Manual Input</h2>
