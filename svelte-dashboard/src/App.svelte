@@ -1,8 +1,11 @@
 <script>
 	// No props needed for main dashboard layout
+<<<<<<< HEAD
 	import CurrentStatus from './CurrentStatus.svelte';
 	import InputForm from './InputForm.svelte';
 	import ChartComponent from './ChartComponent.svelte';
+=======
+>>>>>>> a600228f2560d152def4fbc1b119453f521e6181
 </script>
 
 <main class="dashboard-container">
@@ -10,6 +13,7 @@
 		<h1>Resource-Efficient Plant Care Dashboard</h1>
 	</header>
 	<section class="dashboard-main">
+<<<<<<< HEAD
 		<!-- Current Plant Status -->
 		<div class="status-section">
 			<h2>Current Plant Status</h2>
