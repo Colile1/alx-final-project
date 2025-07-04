@@ -26,6 +26,20 @@
 		<div class="input-section">
 			<h2>Manual Input</h2>
 			<InputForm />
+=======
+		<!-- Placeholder for current plant status, charts, and input form -->
+		<div class="status-section">
+			<h2>Current Plant Status</h2>
+			<!-- Add status cards/components here in later steps -->
+		</div>
+		<div class="charts-section">
+			<h2>Historical Data</h2>
+			<!-- Chart.js integration will go here -->
+		</div>
+		<div class="input-section">
+			<h2>Manual Input</h2>
+			<!-- Manual input form will go here -->
+>>>>>>> a600228f2560d152def4fbc1b119453f521e6181
 		</div>
 	</section>
 </main>

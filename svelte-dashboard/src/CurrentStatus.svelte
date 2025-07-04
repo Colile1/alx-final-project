@@ -4,6 +4,29 @@ let loading = true;
 let error = '';
 let data = null;
 
+// Thresholds (could be made configurable later)
+const MOISTURE_DRY = 40;
+const MOISTURE_WET = 85;
+const TEMP_MAX = 30;
+const LIGHT_MIN = 500;
+
+function getStatus() {
+	if (!data) return null;
+	if (data.moisture !== undefined && data.moisture < MOISTURE_DRY) {
+		return { msg: 'Needs water!', type: 'alert', icon: '💧' };
+	}
+	if (data.moisture !== undefined && data.moisture > MOISTURE_WET) {
+		return { msg: 'Soil too wet', type: 'warn', icon: '🌧️' };
+	}
+	if (data.temp !== undefined && data.temp > TEMP_MAX) {
+		return { msg: 'Too hot!', type: 'warn', icon: '🌡️' };
+	}
+	if (data.light !== undefined && data.light < LIGHT_MIN) {
+		return { msg: 'Needs more light', type: 'warn', icon: '💡' };
+	}
+	return { msg: 'Plant is healthy', type: 'ok', icon: '🌱' };
+}
+
 async function fetchLatest() {
 	loading = true;
 	error = '';
@@ -31,6 +54,12 @@ onMount(() => {
 	{:else if error}
 		<p class="error">{error}</p>
 	{:else if data}
+		{#if getStatus()}
+			<div class="status {getStatus().type}">
+				<span class="icon">{getStatus().icon}</span>
+				<span>{getStatus().msg}</span>
+			</div>
+		{/if}
 		<div class="metrics">
 			<div class="metric">
 				<span class="label">Soil Moisture</span>
@@ -55,6 +84,34 @@ onMount(() => {
 <style>
 .current-status {
 	padding: 1rem 0;
+}
+.status {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 1.2rem;
+	margin-bottom: 1rem;
+	padding: 0.5rem 1rem;
+	border-radius: 6px;
+	font-weight: 500;
+}
+.status.alert {
+	background: #fff5f5;
+	color: #e53e3e;
+	border: 1px solid #e53e3e33;
+}
+.status.warn {
+	background: #fefcbf;
+	color: #b7791f;
+	border: 1px solid #b7791f33;
+}
+.status.ok {
+	background: #f0fff4;
+	color: #38a169;
+	border: 1px solid #38a16933;
+}
+.status .icon {
+	font-size: 1.5rem;
 }
 .metrics {
 	display: flex;
