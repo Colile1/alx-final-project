@@ -8,6 +8,7 @@ import random
 import math
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
+import requests
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'  # Change this in production
@@ -84,16 +85,18 @@ def start_simulation_thread():
     t = threading.Thread(target=simulate_data, daemon=True)
     t.start()
 
+# --- User Table: add location ---
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
-    # Users table
+    # Users table (add location)
     c.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
-            last_login TEXT
+            last_login TEXT,
+            location TEXT
         )
     ''')
     # Plant readings table (add user_id)
@@ -128,13 +131,14 @@ def register():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
+    location = data.get('location')  # New: accept location
     if not username or not password:
         return jsonify({'error': 'Username and password required'}), 400
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     try:
-        c.execute('INSERT INTO users (username, password_hash) VALUES (?, ?)',
-                  (username, generate_password_hash(password)))
+        c.execute('INSERT INTO users (username, password_hash, location) VALUES (?, ?, ?)',
+                  (username, generate_password_hash(password), location))
         conn.commit()
         user_id = c.lastrowid
     except sqlite3.IntegrityError:
@@ -283,3 +287,50 @@ def predict_next_watering():
         'avg_drop_per_hour': round(avg_drop_per_hour, 2),
         'message': f'Estimated next watering: {next_watering_time.strftime("%Y-%m-%d %H:%M:%S")}'
     })
+
+# --- Update User Location ---
+@app.route('/api/set_location', methods=['POST'])
+@require_login
+def set_location():
+    data = request.get_json()
+    location = data.get('location')
+    if not location:
+        return jsonify({'error': 'Location required'}), 400
+    user_id = session['user_id']
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute('UPDATE users SET location = ? WHERE id = ?', (location, user_id))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Location updated'})
+
+# --- Weather API integration (OpenWeatherMap, free tier) ---
+OPENWEATHER_API_KEY = os.environ.get('OPENWEATHER_API_KEY', 'demo')  # Set your real API key in env
+
+@app.route('/api/weather', methods=['GET'])
+@require_login
+def get_weather():
+    user_id = session['user_id']
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute('SELECT location FROM users WHERE id = ?', (user_id,))
+    row = c.fetchone()
+    conn.close()
+    if not row or not row[0]:
+        return jsonify({'error': 'No location set for user.'}), 400
+    location = row[0]
+    # Try to fetch weather by city name
+    url = f'https://api.openweathermap.org/data/2.5/weather?q={location}&appid={OPENWEATHER_API_KEY}&units=metric'
+    resp = requests.get(url)
+    if resp.status_code != 200:
+        return jsonify({'error': 'Failed to fetch weather', 'details': resp.json()}), 400
+    data = resp.json()
+    weather = {
+        'location': location,
+        'description': data['weather'][0]['description'],
+        'temp': data['main']['temp'],
+        'humidity': data['main']['humidity'],
+        'wind_speed': data['wind']['speed'],
+        'icon': data['weather'][0]['icon']
+    }
+    return jsonify(weather)
