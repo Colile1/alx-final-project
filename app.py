@@ -2,10 +2,43 @@ from flask import Flask, request, jsonify
 import sqlite3
 import os
 from datetime import datetime
+import threading
+import time
+import random
 
 app = Flask(__name__)
 
 DB_NAME = 'plant_data.db'
+
+# --- Simulation settings ---
+SIM_INTERVAL = 60  # seconds
+
+# Reasonable ranges for simulation
+MOISTURE_RANGE = (30, 90)
+TEMP_RANGE = (18, 32)
+LIGHT_RANGE = (300, 1200)
+
+# --- Automated Data Simulation Thread ---
+def simulate_data():
+    while True:
+        # Generate simulated values
+        moisture = round(random.uniform(*MOISTURE_RANGE), 1)
+        temp = round(random.uniform(*TEMP_RANGE), 1)
+        light = round(random.uniform(*LIGHT_RANGE), 0)
+        timestamp = datetime.utcnow().isoformat(sep=' ', timespec='seconds')
+        conn = sqlite3.connect(DB_NAME)
+        c = conn.cursor()
+        c.execute('''
+            INSERT INTO plant_readings (timestamp, moisture, temp, light, notes, plant_id)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (timestamp, moisture, temp, light, '', None))
+        conn.commit()
+        conn.close()
+        time.sleep(SIM_INTERVAL)
+
+def start_simulation_thread():
+    t = threading.Thread(target=simulate_data, daemon=True)
+    t.start()
 
 def init_db():
     if not os.path.exists(DB_NAME):
@@ -30,6 +63,10 @@ def setup():
     if not hasattr(app, 'db_initialized'):
         init_db()
         app.db_initialized = True
+        # Start simulation thread only once
+        if not hasattr(app, 'sim_thread_started'):
+            start_simulation_thread()
+            app.sim_thread_started = True
 
 @app.route('/')
 def hello():
