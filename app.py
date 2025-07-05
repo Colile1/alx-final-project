@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 import sqlite3
 import os
 from datetime import datetime, timedelta
@@ -6,8 +6,12 @@ import threading
 import time
 import random
 import math
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_cors import CORS
 
 app = Flask(__name__)
+app.secret_key = 'supersecretkey'  # Change this in production
+CORS(app, supports_credentials=True)
 
 DB_NAME = 'plant_data.db'
 
@@ -61,13 +65,17 @@ def simulate_data():
             light = random.uniform(0, 20)  # night
         light = round(light, 0)
 
-        timestamp = now.isoformat(sep=' ', timespec='seconds')
+        # Simulate for all users
         conn = sqlite3.connect(DB_NAME)
         c = conn.cursor()
-        c.execute('''
-            INSERT INTO plant_readings (timestamp, moisture, temp, light, notes, plant_id)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (timestamp, round(sim_state['moisture'], 1), temp, light, '', None))
+        c.execute('SELECT id FROM users')
+        user_ids = [row[0] for row in c.fetchall()]
+        timestamp = now.isoformat(sep=' ', timespec='seconds')
+        for user_id in user_ids:
+            c.execute('''
+                INSERT INTO plant_readings (timestamp, moisture, temp, light, notes, plant_id, user_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (timestamp, round(sim_state['moisture'], 1), temp, light, '', None, user_id))
         conn.commit()
         conn.close()
         time.sleep(SIM_INTERVAL)
@@ -77,38 +85,104 @@ def start_simulation_thread():
     t.start()
 
 def init_db():
-    if not os.path.exists(DB_NAME):
-        conn = sqlite3.connect(DB_NAME)
-        c = conn.cursor()
-        c.execute('''
-            CREATE TABLE plant_readings (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp TEXT NOT NULL,
-                moisture REAL NOT NULL,
-                temp REAL NOT NULL,
-                light REAL NOT NULL,
-                notes TEXT,
-                plant_id INTEGER
-            )
-        ''')
-        conn.commit()
-        conn.close()
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    # Users table
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            last_login TEXT
+        )
+    ''')
+    # Plant readings table (add user_id)
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS plant_readings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            moisture REAL NOT NULL,
+            temp REAL NOT NULL,
+            light REAL NOT NULL,
+            notes TEXT,
+            plant_id INTEGER,
+            user_id INTEGER,
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
 @app.before_request
 def setup():
     if not hasattr(app, 'db_initialized'):
         init_db()
         app.db_initialized = True
-        # Start simulation thread only once
         if not hasattr(app, 'sim_thread_started'):
             start_simulation_thread()
             app.sim_thread_started = True
 
-@app.route('/')
-def hello():
-    return 'Hello, World!'
+# --- User Registration ---
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    if not username or not password:
+        return jsonify({'error': 'Username and password required'}), 400
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    try:
+        c.execute('INSERT INTO users (username, password_hash) VALUES (?, ?)',
+                  (username, generate_password_hash(password)))
+        conn.commit()
+        user_id = c.lastrowid
+    except sqlite3.IntegrityError:
+        conn.close()
+        return jsonify({'error': 'Username already exists'}), 409
+    conn.close()
+    session['user_id'] = user_id
+    return jsonify({'message': 'Registration successful', 'user_id': user_id})
 
+# --- User Login ---
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute('SELECT id, password_hash FROM users WHERE username = ?', (username,))
+    row = c.fetchone()
+    if not row or not check_password_hash(row[1], password):
+        conn.close()
+        return jsonify({'error': 'Invalid credentials'}), 401
+    user_id = row[0]
+    session['user_id'] = user_id
+    c.execute('UPDATE users SET last_login = ? WHERE id = ?', (datetime.utcnow().isoformat(), user_id))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Login successful', 'user_id': user_id})
+
+# --- User Logout ---
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    session.pop('user_id', None)
+    return jsonify({'message': 'Logged out'})
+
+# --- Auth Decorator ---
+def require_login(f):
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if 'user_id' not in session:
+            return jsonify({'error': 'Authentication required'}), 401
+        return f(*args, **kwargs)
+    return decorated
+
+# --- Plant Data Endpoints (per user) ---
 @app.route('/api/add_reading', methods=['POST'])
+@require_login
 def add_reading():
     data = request.get_json()
     required_fields = ['moisture', 'temp', 'light']
@@ -117,22 +191,25 @@ def add_reading():
     timestamp = data.get('timestamp', datetime.utcnow().isoformat())
     notes = data.get('notes', '')
     plant_id = data.get('plant_id')
+    user_id = session['user_id']
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     c.execute('''
-        INSERT INTO plant_readings (timestamp, moisture, temp, light, notes, plant_id)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ''', (timestamp, data['moisture'], data['temp'], data['light'], notes, plant_id))
+        INSERT INTO plant_readings (timestamp, moisture, temp, light, notes, plant_id, user_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (timestamp, data['moisture'], data['temp'], data['light'], notes, plant_id, user_id))
     conn.commit()
     conn.close()
-    return jsonify({'message': 'Reading added successfully'}), 201
+    return jsonify({'message': 'Reading added successfully'})
 
 @app.route('/api/latest_reading', methods=['GET'])
+@require_login
 def get_latest_reading():
+    user_id = session['user_id']
     conn = sqlite3.connect(DB_NAME)
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    c.execute('SELECT * FROM plant_readings ORDER BY timestamp DESC, id DESC LIMIT 1')
+    c.execute('SELECT * FROM plant_readings WHERE user_id = ? ORDER BY timestamp DESC, id DESC LIMIT 1', (user_id,))
     row = c.fetchone()
     conn.close()
     if row:
@@ -142,22 +219,24 @@ def get_latest_reading():
         return jsonify({'error': 'No readings found'}), 404
 
 @app.route('/api/readings', methods=['GET'])
+@require_login
 def get_readings():
+    user_id = session['user_id']
     start = request.args.get('start')
     end = request.args.get('end')
     conn = sqlite3.connect(DB_NAME)
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    query = 'SELECT * FROM plant_readings'
-    params = []
+    query = 'SELECT * FROM plant_readings WHERE user_id = ?'
+    params = [user_id]
     if start and end:
-        query += ' WHERE timestamp BETWEEN ? AND ?'
+        query += ' AND timestamp BETWEEN ? AND ?'
         params.extend([start, end])
     elif start:
-        query += ' WHERE timestamp >= ?'
+        query += ' AND timestamp >= ?'
         params.append(start)
     elif end:
-        query += ' WHERE timestamp <= ?'
+        query += ' AND timestamp <= ?'
         params.append(end)
     query += ' ORDER BY timestamp DESC, id DESC'
     c.execute(query, params)
@@ -167,33 +246,31 @@ def get_readings():
     return jsonify(result)
 
 @app.route('/api/predict_next_watering', methods=['GET'])
+@require_login
 def predict_next_watering():
-    # Fetch last N readings (e.g., 24 hours)
+    user_id = session['user_id']
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     c.execute('''
-        SELECT timestamp, moisture FROM plant_readings ORDER BY timestamp DESC LIMIT 48
-    ''')
+        SELECT timestamp, moisture FROM plant_readings WHERE user_id = ? ORDER BY timestamp DESC LIMIT 48
+    ''', (user_id,))
     rows = c.fetchall()
     conn.close()
     if len(rows) < 2:
         return jsonify({'prediction': None, 'message': 'Not enough data for prediction.'})
-    # Sort by timestamp ascending
     rows = rows[::-1]
     times = [datetime.strptime(r[0], '%Y-%m-%d %H:%M:%S') for r in rows]
     moistures = [r[1] for r in rows]
-    # Estimate average rate of decrease (ignoring increases)
     drops = []
     for i in range(1, len(moistures)):
         delta = moistures[i] - moistures[i-1]
-        dt = (times[i] - times[i-1]).total_seconds() / 3600  # hours
+        dt = (times[i] - times[i-1]).total_seconds() / 3600
         if delta < 0 and dt > 0:
             drops.append(abs(delta) / dt)
     if not drops:
         return jsonify({'prediction': None, 'message': 'No decreasing trend detected.'})
     avg_drop_per_hour = sum(drops) / len(drops)
     current = moistures[-1]
-    # Predict when moisture will hit threshold (e.g., 40%)
     threshold = 40
     if avg_drop_per_hour == 0 or current <= threshold:
         return jsonify({'prediction': None, 'message': 'Cannot predict (no decrease or already below threshold).'})
@@ -206,6 +283,3 @@ def predict_next_watering():
         'avg_drop_per_hour': round(avg_drop_per_hour, 2),
         'message': f'Estimated next watering: {next_watering_time.strftime("%Y-%m-%d %H:%M:%S")}'
     })
-
-if __name__ == '__main__':
-    app.run(debug=True)

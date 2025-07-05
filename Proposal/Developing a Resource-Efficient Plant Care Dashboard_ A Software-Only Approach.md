@@ -151,7 +151,13 @@ This section provides a granular, actionable task breakdown for each day, direct
 | Day 15 | Automated Data Simulation Module: Write Python script/module in Flask backend to programmatically generate simulated plant data (moisture, temp, light) at regular intervals. | Flask backend automatically generates and stores new simulated data points in SQLite. | Python script. |
 | Day 16 | Refine Data Simulation Logic: Enhance simulation to mimic realistic patterns (e.g., moisture decrease after "watering," daily temperature cycles). | More realistic simulated data patterns. | Python script. |
 | Day 17 | Implement Basic Predictive Logic (Optional): Add simple Python logic to Flask to predict next watering time based on historical moisture trends. Display prediction on dashboard. | Dashboard shows a basic prediction for next watering. | Python, pandas (optional). |
-| Day 18 | User Authentication (Optional): Implement Flask-BasicAuth to protect dashboard routes with a simple username/password.19 | Dashboard requires basic authentication for access. | Flask-BasicAuth library. |
+| Day 18 | User Authentication (Optional): Implement Flask-BasicAuth to protect dashboard routes with a simple username/password.19 | Dashboard requires basic authentication for access. add a login page that allows a new user to create a new account, and an old user to login using their existing credential. Also create a database that stores info from all users. Each user must see their own data when they login. Include a feature that enables users to continue from where there left oof on last login.   | Flask-BasicAuth library. |
+
+
+Add Svelte pages for login and registration.
+Store the session (cookie) and use it for all API requests.
+Ensure all plant data is user-specific and users resume from their last login.
+do the Svelte login/register page and frontend integration implementation.
 | **Phase 5: Testing, Documentation & Finalization** |  |  |  |
 | Day 19 | Comprehensive System Testing: Perform rigorous end-to-end testing of all features (data simulation, manual input, real-time display, historical charts, status indicators, optional features). | Detailed list of identified bugs and areas for improvement. | All software components. |
 | Day 20 | Debugging & Bug Fixing: Systematically address and resolve all identified bugs and issues from testing. Ensure all core functionalities operate reliably. | A fully functional and stable Resource-Efficient Plant Care Dashboard. | Text editor, web browser developer tools. |

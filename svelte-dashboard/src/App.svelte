@@ -1,47 +1,60 @@
 <script>
-	// No props needed for main dashboard layout
-<<<<<<< HEAD
+	import { onMount } from 'svelte';
+	import Auth from './Auth.svelte';
 	import CurrentStatus from './CurrentStatus.svelte';
 	import InputForm from './InputForm.svelte';
 	import ChartComponent from './ChartComponent.svelte';
-=======
->>>>>>> a600228f2560d152def4fbc1b119453f521e6181
+	import { user, lastLogin, fetchUserInfo } from './authStore.js';
+	let authed = false;
+	let checked = false;
+	let lastLoginVal = null;
+
+	onMount(async () => {
+	  authed = await fetchUserInfo();
+	  checked = true;
+	  $: lastLogin.subscribe(val => lastLoginVal = val);
+	});
+
+	function handleLogout() {
+	  fetch('http://localhost:5000/api/logout', { method: 'POST', credentials: 'include' })
+	    .then(() => { window.location.reload(); });
+	}
 </script>
 
 <main class="dashboard-container">
 	<header class="dashboard-header">
 		<h1>Resource-Efficient Plant Care Dashboard</h1>
+		{#if authed}
+			<div class="user-bar">
+				<span>Welcome, {$user}!</span>
+				{#if lastLoginVal}
+					<span class="last-login">Last login: {lastLoginVal}</span>
+				{/if}
+				<button on:click={handleLogout}>Logout</button>
+			</div>
+		{/if}
 	</header>
-	<section class="dashboard-main">
-<<<<<<< HEAD
-		<!-- Current Plant Status -->
-		<div class="status-section">
-			<h2>Current Plant Status</h2>
-			<CurrentStatus />
-		</div>
-		<div class="charts-section">
-			<h2>Historical Data</h2>
-			<ChartComponent />
-		</div>
-		<div class="input-section">
-			<h2>Manual Input</h2>
-			<InputForm />
-=======
-		<!-- Placeholder for current plant status, charts, and input form -->
-		<div class="status-section">
-			<h2>Current Plant Status</h2>
-			<!-- Add status cards/components here in later steps -->
-		</div>
-		<div class="charts-section">
-			<h2>Historical Data</h2>
-			<!-- Chart.js integration will go here -->
-		</div>
-		<div class="input-section">
-			<h2>Manual Input</h2>
-			<!-- Manual input form will go here -->
->>>>>>> a600228f2560d152def4fbc1b119453f521e6181
-		</div>
-	</section>
+	{#if !checked}
+		<p style="text-align:center;">Checking authentication...</p>
+	{:else if !authed}
+		<Auth />
+	{:else}
+		<section class="dashboard-main">
+			<!-- Current Plant Status -->
+			<div class="status-section">
+				<h2>Current Plant Status</h2>
+				<CurrentStatus />
+			</div>
+			<div class="charts-section">
+				<h2>Historical Data</h2>
+				<ChartComponent />
+			</div>
+			<div class="input-section">
+				<h2>Manual Input</h2>
+				<InputForm />
+			</div>
+		</section>
+	{/if}
 </main>
 
 <style>
@@ -56,12 +69,26 @@
 	padding: 2rem 0 1rem 0;
 	text-align: center;
 	box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+	position: relative;
 }
-.dashboard-header h1 {
-	margin: 0;
-	font-size: 2.2rem;
-	font-weight: 700;
-	letter-spacing: 1px;
+.user-bar {
+	display: flex;
+	gap: 1.5rem;
+	align-items: center;
+	justify-content: center;
+	margin-top: 0.5rem;
+}
+.user-bar button {
+	background: #e53e3e;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	padding: 0.3rem 1rem;
+	cursor: pointer;
+}
+.last-login {
+	font-size: 0.95rem;
+	color: #cbd5e1;
 }
 .dashboard-main {
 	display: flex;

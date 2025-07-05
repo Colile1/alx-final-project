@@ -3,6 +3,9 @@ import { onMount } from 'svelte';
 let loading = true;
 let error = '';
 let data = null;
+let prediction = null;
+let predLoading = false;
+let predError = '';
 
 // Thresholds (could be made configurable later)
 const MOISTURE_DRY = 40;
@@ -41,9 +44,27 @@ async function fetchLatest() {
 	loading = false;
 }
 
+async function fetchPrediction() {
+	predLoading = true;
+	predError = '';
+	try {
+		const res = await fetch('http://localhost:5000/api/predict_next_watering');
+		if (!res.ok) throw new Error('Prediction error');
+		prediction = await res.json();
+	} catch (e) {
+		predError = e.message;
+		prediction = null;
+	}
+	predLoading = false;
+}
+
 onMount(() => {
 	fetchLatest();
-	const interval = setInterval(fetchLatest, 5000); // refresh every 5s
+	fetchPrediction();
+	const interval = setInterval(() => {
+		fetchLatest();
+		fetchPrediction();
+	}, 5000); // refresh every 5s
 	return () => clearInterval(interval);
 });
 </script>
@@ -59,6 +80,18 @@ onMount(() => {
 				<span class="icon">{getStatus().icon}</span>
 				<span>{getStatus().msg}</span>
 			</div>
+		{/if}
+		{#if predLoading}
+			<p>Predicting next watering...</p>
+		{:else if predError}
+			<p class="error">{predError}</p>
+		{:else if prediction && prediction.prediction}
+			<div class="prediction">
+				<span class="icon">⏳</span>
+				<span>Next watering estimated: <b>{prediction.prediction}</b> ({prediction.hours_to_threshold} hours left)</span>
+			</div>
+		{:else if prediction && prediction.message}
+			<div class="prediction warn">{prediction.message}</div>
 		{/if}
 		<div class="metrics">
 			<div class="metric">
@@ -140,5 +173,22 @@ onMount(() => {
 }
 .error {
 	color: #e53e3e;
+}
+.prediction {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	background: #e6fffa;
+	color: #285e61;
+	border: 1px solid #81e6d9;
+	border-radius: 6px;
+	padding: 0.5rem 1rem;
+	margin-bottom: 1rem;
+	font-size: 1.1rem;
+}
+.prediction.warn {
+	background: #fefcbf;
+	color: #b7791f;
+	border: 1px solid #b7791f33;
 }
 </style>
