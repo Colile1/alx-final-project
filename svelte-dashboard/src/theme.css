@@ -1,0 +1,42 @@
+/* Theme variables */
+:root {
+  --color-bg: #f8fafc;
+  --color-header: #2d3748;
+  --color-header-text: #fff;
+  --color-card: #fff;
+  --color-card-title: #2d3748;
+  --color-btn: #e53e3e;
+  --color-btn-text: #fff;
+  --color-last-login: #cbd5e1;
+}
+[data-theme="dark"] {
+  --color-bg: #181a1b;
+  --color-header: #23272f;
+  --color-header-text: #e2e8f0;
+  --color-card: #23272f;
+  --color-card-title: #e2e8f0;
+  --color-btn: #e53e3e;
+  --color-btn-text: #fff;
+  --color-last-login: #a0aec0;
+}
+
+body, .dashboard-container {
+  background: var(--color-bg);
+}
+.dashboard-header {
+  background: var(--color-header);
+  color: var(--color-header-text);
+}
+.status-section, .charts-section, .input-section {
+  background: var(--color-card);
+}
+.status-section h2, .charts-section h2, .input-section h2 {
+  color: var(--color-card-title);
+}
+.user-bar button {
+  background: var(--color-btn);
+  color: var(--color-btn-text);
+}
+.last-login {
+  color: var(--color-last-login);
+}

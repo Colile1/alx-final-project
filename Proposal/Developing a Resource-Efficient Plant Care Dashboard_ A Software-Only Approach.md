@@ -158,6 +158,13 @@ Add Svelte pages for login and registration.
 Store the session (cookie) and use it for all API requests.
 Ensure all plant data is user-specific and users resume from their last login.
 do the Svelte login/register page and frontend integration implementation.
+
+add option to get data directly from, various types of sensors
+
+add option to import data from data base or csv file
+
+add option for dark mode and light mode
+
 | **Phase 5: Testing, Documentation & Finalization** |  |  |  |
 | Day 19 | Comprehensive System Testing: Perform rigorous end-to-end testing of all features (data simulation, manual input, real-time display, historical charts, status indicators, optional features). | Detailed list of identified bugs and areas for improvement. | All software components. |
 | Day 20 | Debugging & Bug Fixing: Systematically address and resolve all identified bugs and issues from testing. Ensure all core functionalities operate reliably. | A fully functional and stable Resource-Efficient Plant Care Dashboard. | Text editor, web browser developer tools. |

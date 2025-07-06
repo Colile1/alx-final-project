@@ -5,25 +5,37 @@
 	import InputForm from './InputForm.svelte';
 	import ChartComponent from './ChartComponent.svelte';
 	import { user, lastLogin, fetchUserInfo } from './authStore.js';
+	import './theme.css';
 	let authed = false;
 	let checked = false;
 	let lastLoginVal = null;
+	let theme = localStorage.getItem('theme') || 'light';
 
 	onMount(async () => {
 	  authed = await fetchUserInfo();
 	  checked = true;
 	  $: lastLogin.subscribe(val => lastLoginVal = val);
+	  document.documentElement.setAttribute('data-theme', theme);
 	});
 
 	function handleLogout() {
 	  fetch('http://localhost:5000/api/logout', { method: 'POST', credentials: 'include' })
 	    .then(() => { window.location.reload(); });
 	}
+
+	function toggleTheme() {
+		theme = theme === 'light' ? 'dark' : 'light';
+		document.documentElement.setAttribute('data-theme', theme);
+		localStorage.setItem('theme', theme);
+	}
 </script>
 
 <main class="dashboard-container">
 	<header class="dashboard-header">
 		<h1>Resource-Efficient Plant Care Dashboard</h1>
+		<button class="theme-toggle" on:click={toggleTheme} aria-label="Toggle dark/light mode">
+			{theme === 'dark' ? '🌙 Dark' : '☀️ Light'}
+		</button>
 		{#if authed}
 			<div class="user-bar">
 				<span>Welcome, {$user}!</span>
@@ -58,18 +70,29 @@
 </main>
 
 <style>
+@import './theme.css';
 .dashboard-container {
 	font-family: system-ui, sans-serif;
-	background: #f8fafc;
+	background: var(--color-bg);
 	min-height: 100vh;
 }
 .dashboard-header {
-	background: #2d3748;
-	color: #fff;
+	background: var(--color-header);
+	color: var(--color-header-text);
 	padding: 2rem 0 1rem 0;
 	text-align: center;
 	box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 	position: relative;
+}
+.theme-toggle {
+	position: absolute;
+	top: 1.2rem;
+	right: 2rem;
+	background: none;
+	border: none;
+	font-size: 1.1rem;
+	cursor: pointer;
+	color: var(--color-header-text);
 }
 .user-bar {
 	display: flex;
@@ -79,8 +102,8 @@
 	margin-top: 0.5rem;
 }
 .user-bar button {
-	background: #e53e3e;
-	color: #fff;
+	background: var(--color-btn);
+	color: var(--color-btn-text);
 	border: none;
 	border-radius: 4px;
 	padding: 0.3rem 1rem;
@@ -88,7 +111,7 @@
 }
 .last-login {
 	font-size: 0.95rem;
-	color: #cbd5e1;
+	color: var(--color-last-login);
 }
 .dashboard-main {
 	display: flex;
@@ -99,14 +122,14 @@
 	padding: 0 1rem;
 }
 .status-section, .charts-section, .input-section {
-	background: #fff;
+	background: var(--color-card);
 	border-radius: 8px;
 	box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 	padding: 1.5rem;
 }
 .status-section h2, .charts-section h2, .input-section h2 {
 	margin-top: 0;
-	color: #2d3748;
+	color: var(--color-card-title);
 	font-size: 1.3rem;
 }
 </style>

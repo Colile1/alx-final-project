@@ -9,6 +9,8 @@ import math
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
 import requests
+import csv
+from io import StringIO
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'  # Change this in production
@@ -99,7 +101,7 @@ def init_db():
             location TEXT
         )
     ''')
-    # Plant readings table (add user_id)
+    # Plant readings table (add user_id, sensor_type)
     c.execute('''
         CREATE TABLE IF NOT EXISTS plant_readings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -110,6 +112,7 @@ def init_db():
             notes TEXT,
             plant_id INTEGER,
             user_id INTEGER,
+            sensor_type TEXT,
             FOREIGN KEY(user_id) REFERENCES users(id)
         )
     ''')
@@ -195,13 +198,14 @@ def add_reading():
     timestamp = data.get('timestamp', datetime.utcnow().isoformat())
     notes = data.get('notes', '')
     plant_id = data.get('plant_id')
+    sensor_type = data.get('sensor_type', 'manual')  # Default to 'manual' if not provided
     user_id = session['user_id']
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     c.execute('''
-        INSERT INTO plant_readings (timestamp, moisture, temp, light, notes, plant_id, user_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    ''', (timestamp, data['moisture'], data['temp'], data['light'], notes, plant_id, user_id))
+        INSERT INTO plant_readings (timestamp, moisture, temp, light, notes, plant_id, user_id, sensor_type)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (timestamp, data['moisture'], data['temp'], data['light'], notes, plant_id, user_id, sensor_type))
     conn.commit()
     conn.close()
     return jsonify({'message': 'Reading added successfully'})
@@ -334,3 +338,62 @@ def get_weather():
         'icon': data['weather'][0]['icon']
     }
     return jsonify(weather)
+
+@app.route('/api/import_readings', methods=['POST'])
+@require_login
+def import_readings():
+    user_id = session['user_id']
+    if 'file' in request.files:
+        # CSV upload
+        file = request.files['file']
+        stream = StringIO(file.stream.read().decode('utf-8'))
+        reader = csv.DictReader(stream)
+        rows = list(reader)
+        imported = 0
+        conn = sqlite3.connect(DB_NAME)
+        c = conn.cursor()
+        for row in rows:
+            try:
+                c.execute('''
+                    INSERT INTO plant_readings (timestamp, moisture, temp, light, notes, plant_id, user_id, sensor_type)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (
+                    row.get('timestamp', datetime.utcnow().isoformat()),
+                    float(row['moisture']),
+                    float(row['temp']),
+                    float(row['light']),
+                    row.get('notes', ''),
+                    row.get('plant_id'),
+                    user_id,
+                    row.get('sensor_type', 'imported')
+                ))
+                imported += 1
+            except Exception as e:
+                continue
+        conn.commit()
+        conn.close()
+        return jsonify({'message': f'Imported {imported} readings from CSV.'})
+    elif 'db_path' in request.json:
+        # Import from another SQLite database file
+        db_path = request.json['db_path']
+        if not os.path.exists(db_path):
+            return jsonify({'error': 'Database file not found.'}), 400
+        src_conn = sqlite3.connect(db_path)
+        src_c = src_conn.cursor()
+        src_c.execute('SELECT timestamp, moisture, temp, light, notes, plant_id, sensor_type FROM plant_readings')
+        rows = src_c.fetchall()
+        src_conn.close()
+        imported = 0
+        conn = sqlite3.connect(DB_NAME)
+        c = conn.cursor()
+        for row in rows:
+            c.execute('''
+                INSERT INTO plant_readings (timestamp, moisture, temp, light, notes, plant_id, user_id, sensor_type)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (*row, user_id))
+            imported += 1
+        conn.commit()
+        conn.close()
+        return jsonify({'message': f'Imported {imported} readings from database.'})
+    else:
+        return jsonify({'error': 'No file or db_path provided.'}), 400
