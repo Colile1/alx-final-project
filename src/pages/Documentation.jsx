@@ -48,7 +48,7 @@ export default function Documentation() {
           <TabsTrigger value="user-guide"><LifeBuoy className="w-4 h-4 mr-2" />User Guide</TabsTrigger>
           <TabsTrigger value="tech-docs"><Code className="w-4 h-4 mr-2" />Tech Docs</TabsTrigger>
           <TabsTrigger value="release-notes"><FileText className="w-4 h-4 mr-2" />Release Notes</TabsTrigger>
-          <TabsTrigger value="ai-assistant"><Bot className="w-4 h-4 mr-2" />AI Assistant</TabsTrigger>
+          <TabsTrigger value="ai-assistant"><Bot className="w-4 h-4 mr-2" /> </TabsTrigger>
         </TabsList>
 
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
@@ -101,19 +101,19 @@ export default function Documentation() {
                   <CardDescription>Published on July 9, 2025</CardDescription>
                 </CardHeader>
                 <CardContent className="prose prose-invert max-w-none">
-                  <h4>✨ New Features</h4>
+                  <h4> New Features</h4>
                   <ul>
                     <li><strong>Analytics Page:</strong> Introduced a new page with interactive charts for garden health, plant types, and sensor trends.</li>
                     <li><strong>Device Details View:</strong> Added a dedicated page to view details and data for a specific device.</li>
                     <li><strong>Documentation Page:</strong> This very page was added to help users and developers.</li>
                   </ul>
-                  <h4>🚀 Improvements</h4>
+                  <h4>Improvements</h4>
                   <ul>
                     <li>Dashboard summary cards are now clickable, navigating to the respective pages.</li>
                     <li>Enhanced the "Add Device" flow with a multi-step wizard.</li>
                     <li>Refactored large components for better performance and maintainability.</li>
                   </ul>
-                   <h4>🐛 Bug Fixes</h4>
+                   <h4>Bug Fixes</h4>
                   <ul>
                     <li>Fixed a crash on the Analytics page when gardens had no plants.</li>
                     <li>Stabilized the weather data fetching to prevent excessive refreshes.</li>
@@ -127,24 +127,12 @@ export default function Documentation() {
             <motion.div variants={itemVariants}>
               <Card className="glass-effect">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><Bot /> Using Your AI Assistant</CardTitle>
+                  <CardTitle className="flex items-center gap-2"><Bot /> </CardTitle>
                   <CardDescription>Get the most out of me, Hostinger Horizons!</CardDescription>
                 </CardHeader>
                 <CardContent className="prose prose-invert max-w-none">
-                  <p>I'm here to help you build, modify, and improve your C_Gardens application in real-time. Just tell me what you need in plain English!</p>
-                  <h4>How It Works</h4>
-                  <ol>
-                    <li><strong>Give a Prompt:</strong> Ask for a new feature, a change, or a bug fix. For example: "Add a new chart to the analytics page showing average humidity" or "Change the color of the primary buttons to orange."</li>
-                    <li><strong>Review My Plan:</strong> I'll outline the steps I'm about to take to fulfill your request.</li>
-                    <li><strong>See the Magic:</strong> I'll write and apply the code instantly. You'll see the changes reflected in the app preview immediately.</li>
-                    <li><strong>Iterate:</strong> Don't like something? Want to add more? Just give me another prompt! We can build this app together, one request at a time.</li>
-                  </ol>
-                  <h4>Tips for Great Prompts</h4>
-                  <ul>
-                    <li><strong>Be Specific:</strong> Instead of "change the style," try "make the card headers bold and use a larger font."</li>
-                    <li><strong>One Request at a Time:</strong> It's easier to focus on one major feature or change per prompt.</li>
-                    <li><strong>Provide Examples:</strong> If you have an idea, describe it! "When I click the device, show a popup with its battery life and signal strength."</li>
-                  </ul>
+                  <p> '</p>
+          
                 </CardContent>
               </Card>
             </motion.div>
