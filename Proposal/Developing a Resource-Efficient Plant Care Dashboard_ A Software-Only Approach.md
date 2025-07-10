@@ -4,7 +4,7 @@
 
 ## **1\. Project Title and Executive Summary**
 
-**Project Name:** Resource-Efficient Plant Care Dashboard: A Software-Only Approach
+**Project Name:** C_Gardens
 
 This proposal outlines the development of a "Smart Plant Care System" designed to operate entirely on a personal computer, leveraging exclusively free and open-source software. This innovative approach addresses the need for a resource-light alternative to traditional Internet of Things (IoT) setups, which often require specialized hardware and significant investment. The system redefines "smart plant care" by focusing on a robust, web-based dashboard populated with simulated plant data, providing a comprehensive platform for learning web development and data visualization without hardware constraints.
 
@@ -151,7 +151,7 @@ This section provides a granular, actionable task breakdown for each day, direct
 | Day 15 | Automated Data Simulation Module: Write Python script/module in Flask backend to programmatically generate simulated plant data (moisture, temp, light) at regular intervals. | Flask backend automatically generates and stores new simulated data points in SQLite. | Python script. |
 | Day 16 | Refine Data Simulation Logic: Enhance simulation to mimic realistic patterns (e.g., moisture decrease after "watering," daily temperature cycles). | More realistic simulated data patterns. | Python script. |
 | Day 17 | Implement Basic Predictive Logic (Optional): Add simple Python logic to Flask to predict next watering time based on historical moisture trends. Display prediction on dashboard. | Dashboard shows a basic prediction for next watering. | Python, pandas (optional). |
-| Day 18 | User Authentication (Optional): Implement Flask-BasicAuth to protect dashboard routes with a simple username/password.19 | Dashboard requires basic authentication for access. add a login page that allows a new user to create a new account, and an old user to login using their existing credential. Also create a database that stores info from all users. Each user must see their own data when they login. Include a feature that enables users to continue from where there left oof on last login.   | Flask-BasicAuth library. |
+| Day 18 | User Authentication (Optional): Implement Flask-BasicAuth to protect dashboard routes with a simple username/password.19 | add Dashboard requires basic authentication for access. add a login page that allows a new user to create a new account, and an old user to login using their existing credential. Also create a database that stores info from all users. Each user must see their own data when they login. Include a feature that enables users to continue from where there left oof on last login.   | Flask-BasicAuth library. |
 
 
 Add Svelte pages for login and registration.
@@ -161,7 +161,15 @@ do the Svelte login/register page and frontend integration implementation.
 
 add option to get data directly from, various types of sensors
 
+add an option that allows the user to enter their location or read the location from the user's device. then use this to get weather info at the location of the garden. if the user has multiple gardens app must allow user to enter the location of each garden the get the weather info for each. 
+
 add option to import data from data base or csv file
+
+add a page that allows users to view a list of their garderns.
+
+add a setting page that allows user to manage their data preferences, add or remove gardens. pair or unpair with sensors using bluetooth or wifi. manage paired devices.
+
+add other pages and functions that improve utility and usefulness of the app.
 
 add option for dark mode and light mode
 
