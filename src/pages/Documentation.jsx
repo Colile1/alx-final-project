@@ -127,8 +127,8 @@ export default function Documentation() {
             <motion.div variants={itemVariants}>
               <Card className="glass-effect">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><Bot /> </CardTitle>
-                  <CardDescription>Get the most out of me, Hostinger Horizons!</CardDescription>
+                  <CardTitle className="flex items-center gap-2"></CardTitle>
+                  <CardDescription> </CardDescription>
                 </CardHeader>
                 <CardContent className="prose prose-invert max-w-none">
                   <p> '</p>
