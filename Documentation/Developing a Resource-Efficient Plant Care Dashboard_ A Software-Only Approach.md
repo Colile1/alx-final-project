@@ -1,6 +1,4 @@
-
-
-# **Developing a Resource-Efficient Plant Care Dashboard: A Software-Only Approach**
+# **C_Gardens**
 
 ## **1\. Project Title and Executive Summary**
 
@@ -37,7 +35,7 @@ The system will track various metrics typically associated with plant health, su
 * **Database Management (SQLite):** Develop practical skills in designing database schemas, performing CRUD (Create, Read, Update, Delete) operations, and managing data persistence using SQLite, a serverless, file-based database.12  
 * **Frontend Web Development (Svelte, HTML, CSS, JavaScript):** Acquire expertise in creating dynamic and reactive user interfaces using Svelte, including component-based architecture, state management, and efficient data rendering.14  
 * **Data Visualization (Chart.js):** Learn to integrate and utilize Chart.js to create various types of charts (e.g., line graphs) for effective data visualization on the web dashboard.6  
-* **Client-Server Communication:** Understand and implement the communication flow between a frontend (Svelte) and a backend (Flask) using HTTP requests and JSON data exchange.16  
+* **Client-Server Communication:** Understand and implement the communication flow between a frontend (verce) and a backend (Flask) using HTTP requests and JSON data exchange.16  
 * **Data Modeling and Simulation:** Develop an understanding of how to model real-world data (e.g., plant metrics) and implement programmatic data simulation techniques.5  
 * **Solo Project Management:** Practice and refine skills in planning, scheduling, executing, and documenting a multi-faceted software project independently, adhering to defined timelines and deliverables.3
 

@@ -16,9 +16,9 @@ fi
 # 2. Verify Turso CLI
 echo "Verifying Turso CLI..."
 if command -v turso >/dev/null 2>&1; then
-    echo "✅ Turso CLI is installed: $(turso --version)"
+    echo "Turso CLI is installed: $(turso --version)"
 else
-    echo "❌ Turso CLI is still not found. Please restart your terminal or run 'source ~/.bashrc'."
+    echo "Turso CLI is still not found. Please restart your terminal or run 'source ~/.bashrc'."
     exit 1
 fi
 

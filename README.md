@@ -35,37 +35,114 @@ C_Gardens is a modern, full-stack smart plant care dashboard that helps users mo
 ---
 
 ## Tech Stack
-- **Frontend:** Svelte, Chart.js, CSS (with theme support)
+- **Frontend:** Svelte, Chart.js, CSS (with theme support), React.js, Tailwind CSS, Vite, JSX
 - **Backend:** Python 3, Flask, Flask-CORS, SQLite, requests
 - **Authentication:** Flask session-based auth, password hashing
-- **Weather:** OpenWeatherMap API (or similar)
+- **Weather:** OpenWeatherMap API
 - **Testing:** Python unittest
+- **Database:** SQLite (for development), PostgreSQL
 
 ---
 
 ## Project Structure
 ```
-alx-final-project/
-│
-├── app.py                # Flask backend
-├── requirements.txt      # Python dependencies
-├── plant_data.db         # SQLite database (auto-created)
-├── test_app.py           # Backend unit tests
-├── README.md
-│
-├── svelte-dashboard/     # Svelte frontend
-│   ├── src/
-│   │   ├── App.svelte
-│   │   ├── Auth.svelte
-│   │   ├── CurrentStatus.svelte
-│   │   ├── ChartComponent.svelte
-│   │   ├── InputForm.svelte
-│   │   ├── GardensList.svelte
-│   │   ├── WeatherWidget.svelte
-│   │   └── ...
-│   ├── public/
-│   ├── package.json
-│   └── ...
+.
+├── .gitignore
+├── .nvmrc
+├── 0
+│   ├── README.md
+│   ├── backend.py
+│   ├── cool_edit_tool
+│   ├── html.html
+│   ├── Procfile
+│   ├── requirements.txt
+├── Objectives
+│   ├── obectives.md
+│   └── objectives.txt
+├── Proposal
+│   └── Developing a Resource-Efficient Plant Care Dashboard_ A Software-Only Approach.md
+├── public
+│   └── .htaccess
+├── Requirement
+│   └── md
+│       ├── Concept_ Portfolio project _ Johannesburg Intranet.md
+│       ├── Concept_ Portfolio Project Idea Bank _ Johannesburg Intranet.md
+│       ├── Concept_ Portfolio Project Idea Bank _ Johannesburg Intranet_2.md
+│       ├── Concept_ Portfolio Project Idea Bank_1_ Johannesburg Intranet.md
+│       ├── Concept_ Portfolio Project Review_ Introducing Automated Project Review System _ Johannesburg Intranet.md
+│       └── Project_ Webstack - Portfolio Project - Pitch _ Johannesburg Intranet.md
+├── src
+│   ├── App.jsx
+│   ├── components
+│   │   ├── Navbar.jsx
+│   │   ├── devices
+│   │   │   ├── AddDeviceWizard.jsx
+│   │   │   ├── DeviceFormDialog.jsx
+│   │   │   └── DeviceList.jsx
+│   │   ├── gardens
+│   │   │   ├── GardenOverviewTab.jsx
+│   │   │   ├── PlantForm.jsx
+│   │   │   ├── PlantsTab.jsx
+│   │   │   └── SensorDataTab.jsx
+│   │   ├── settings
+│   │   │   ├── NotificationSettings.jsx
+│   │   │   ├── PreferenceSettings.jsx
+│   │   │   ├── PrivacySettings.jsx
+│   │   │   └── ProfileSettings.jsx
+│   │   └── ui
+│   │       ├── alert-dialog.jsx
+│   │       ├── button.jsx
+│   │       ├── card.jsx
+│   │       ├── dialog.jsx
+│   │       ├── dropdown-menu.jsx
+│   │       ├── input.jsx
+│   │       ├── label.jsx
+│   │       ├── switch.jsx
+│   │       ├── tabs.jsx
+│   │       ├── toast.jsx
+│   │       ├── toaster.jsx
+│   │       └── use-toast.js
+│   ├── contexts
+│   │   ├── AuthContext.jsx
+│   │   ├── DataContext.jsx
+│   │   └── ThemeContext.jsx
+│   ├── index.css
+│   ├── lib
+│   │   ├── dataUtils.js
+│   │   └── utils.js
+│   ├── main.jsx
+│   └── pages
+│       ├── Analytics.jsx
+│       ├── Dashboard.jsx
+│       ├── DataManagement.jsx
+│       ├── DeviceDetail.jsx
+│       ├── Devices.jsx
+│       ├── Documentation.jsx
+│       ├── GardenDetail.jsx
+│       ├── Gardens.jsx
+│       ├── Login.jsx
+│       ├── Register.jsx
+│       └── Settings.jsx
+├── tailwind.config.js
+├── test
+│   ├── plant_data.db
+│   └── test_app.py
+├── tools
+│   └── generate-llms.js
+├── v3
+│   ├── 1.sh
+│   ├── backend.py
+│   ├── basic.py
+│   ├── database.py
+│   ├── html.html
+│   ├── requirements.txt
+│   ├── schemas.py
+│   └── security.py
+├── index.html
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── vite.config.js
 │
 └── Proposal/
     └── Developing a Resource-Efficient Plant Care Dashboard_ A Software-Only Approach.md
@@ -189,7 +266,8 @@ This project is licensed under the MIT License.
 - [SQLite](https://www.sqlite.org/)
 - [Render](https://render.com/)
 - [Railway](https://railway.app/)
-
+- vercel
+- [Turso](https://turso.tech/)
 ---
 
 ## Authors
