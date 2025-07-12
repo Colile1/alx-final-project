@@ -35,7 +35,7 @@ C_Gardens is a modern, full-stack smart plant care dashboard that helps users mo
 ---
 
 ## Tech Stack
-- **Frontend:** Svelte, Chart.js, CSS (with theme support), React.js, Tailwind CSS, Vite, JSX
+- **Frontend:**  Chart.js, CSS (with theme support), React.js, Tailwind CSS, Vite, JSX
 - **Backend:** Python 3, Flask, Flask-CORS, SQLite, requests
 - **Authentication:** Flask session-based auth, password hashing
 - **Weather:** OpenWeatherMap API
@@ -63,14 +63,7 @@ C_Gardens is a modern, full-stack smart plant care dashboard that helps users mo
 │   └── Developing a Resource-Efficient Plant Care Dashboard_ A Software-Only Approach.md
 ├── public
 │   └── .htaccess
-├── Requirement
-│   └── md
-│       ├── Concept_ Portfolio project _ Johannesburg Intranet.md
-│       ├── Concept_ Portfolio Project Idea Bank _ Johannesburg Intranet.md
-│       ├── Concept_ Portfolio Project Idea Bank _ Johannesburg Intranet_2.md
-│       ├── Concept_ Portfolio Project Idea Bank_1_ Johannesburg Intranet.md
-│       ├── Concept_ Portfolio Project Review_ Introducing Automated Project Review System _ Johannesburg Intranet.md
-│       └── Project_ Webstack - Portfolio Project - Pitch _ Johannesburg Intranet.md
+├
 ├── src
 │   ├── App.jsx
 │   ├── components

@@ -9,5 +9,3 @@ app = FastAPI(title="C_Gardens API")
 @app.get("/")
 def read_root():
     return {"Welcome": "C_Gardens API"}
-
-# We will add more routes here
